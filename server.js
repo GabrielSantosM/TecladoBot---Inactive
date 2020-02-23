@@ -39,7 +39,7 @@ var Tweet = new Twitter({
 
     }
 
-    var stream = Tweet.stream('statuses/filter', {track: 'Teclado'})
+    var stream = Tweet.stream('statuses/filter', {track: '#biaamordobiel'})
 
     stream.on('data', retweet)
 
