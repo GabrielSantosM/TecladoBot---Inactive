@@ -1,7 +1,7 @@
 {
-  "name": "sorrisobot",
+  "name": "tecladobot",
   "version": "1.0.0",
-  "description": "\"O melhor bot do Twitter\"",
+  "description": "\"TecladoBot for Twitter\"",
   "main": "server.js",
   "scripts": {
     "test": "test ",
@@ -12,7 +12,7 @@
     "twitter",
     "sorriso"
   ],
-  "author": "MaktubDEV",
+  "author": "GabrielSantosM [https://twitter.com/yejistars]",
   "license": "ISC",
   "dependencies": {
     "twit": "^2.2.11",
