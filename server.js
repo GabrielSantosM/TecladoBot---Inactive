@@ -43,7 +43,7 @@ stream.on('tweet', function (tweet){
 
     function verify(){
         if (results) {
-        return();
+        return
         }if(results2){
           return
         }else{
