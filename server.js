@@ -1,50 +1,101 @@
+// Retweeter Bot for Twitter
+// Gabriel Santos 
+// https://twitter.com/yejistars
+// https://twitter.com/TecladoBot
+// https://twitter.com/darthreputation
+// https://github.com/GabrielSantosM
+// https://twitter.com/DahyunRT_Bot
 
-var Twitter = require('twitter');
+//-------------------------------------------------
+ 
+const Twit = require('twit');
+require('dotenv').config();
 
-require('dotenv').config()
-
-var Tweet = new Twitter({
+const T = new Twit ({
   consumer_key:         process.env.BOT_CONSUMER_KEY,
   consumer_secret:      process.env.BOT_CONSUMER_SECRET,
-  access_token_key:     process.env.BOT_ACESS_TOKEN,
-  access_token_secret:  process.env.BOT_ACESS_TOKEN_SECRET,
+  access_token:     	process.env.BOT_ACCESS_TOKEN,
+  access_token_secret:  process.env.BOT_ACCESS_TOKEN_SECRET,
 });
 
+//change 'track' to your word
+// avoid to choose name of celebrities or very populars
+// words because your bot can be suspended by spam
+const stream = T.stream('statuses/filter', { track: 'teclado' })
 
 
+// IMPORTANT!! - Dont change anything bellow this to avoid errors
 
-    function retweet(event) {
-      // console.log(event)
-      var Tweetlocation = event.user.location
-      var TweetId = event.id_str
-      // console.log(TweetId)
-      var Tweeter = event.user.name
-      if(Tweetlocation !== null && event.is_quote_status !== true){
-        Tweet.post(`statuses/retweet/${TweetId}`, function(err){
-          if(err){
-            if(err[0].code == 327){
-              return
-            }else {
-              console.log('deu erro no retweet:')
-              console.log(err)
-            }
+console.log('Running Bot!!');
+
+stream.on('tweet', function (tweet){
+    //console.log(tweet)
+    const Quote = tweet.is_quote_status !== true;
+
+    var txt = tweet.text;
+    var regex = new RegExp('aregex');
+    var regex = /\svassoura?\s?/g;             
+    var results = txt.match(regex);
+    var regex2 = /\ssorriso?\s?/g;             
+    var results2 = txt.match(regex2); 
   
-          }else {
-            console.log('RETWEETADO: ',  `https://twitter.com/${Tweeter}/status/${TweetId}`)
-          }
-        })
-      }else {
-        return 
-      }
+    verify();
 
+    function verify(){
+        if (results) {
+        return();
+        }if(results2){
+          return
+        }else{
+            RTLIKE();
+        }
     }
 
-    var stream = Tweet.stream('statuses/filter', {track: 'teclado'})
+    const location = tweet.user.location !== null;
+    const tweetID = tweet.id_str;
+    const twitterUser = tweet.user.screen_name;
 
-    stream.on('data', retweet)
+    function RTLIKE(){
+        if (location && Quote){
+            retweet();
+        }else{
+            like();
+        }
+    }
+    function retweet(){
+        T.post('statuses/retweet/:id', { id: tweet.id_str}, function(err, data, response){
+            if (!err){
+                console.log('Retweeted Status: ' + ' https://twitter.com/'+ tweet.user.screen_name +  '/status/' + tweet.id_str)
+            }else {
+                if (err.code == '327'){
+                    return;
+                }else{
+                    console.log ('Cannot Retweet: Err '+ err.code + ' ' + err.message + ' '), like();
+                }
+            }
+        })
+    }
 
-    stream.on('error', function(error) {
-      console.log(error)
-    })
-
-
+    function like(){
+        T.post('favorites/create', {id: tweet.id_str}, function(err, data, response){
+            if (!err){
+                console.log('Liked Status: ' + ' https://twitter.com/'+ tweet.user.screen_name +  '/status/' + tweet.id_str)
+                }if (err){
+                    if(err.code == '139'){
+                    return;
+                }else {
+                    console.log ('Cannot Like Tweet: Err '+ err.code +' ' + err.message)
+                }
+            }      
+        })
+    }
+    function block(){
+        T.post('blocks/create', {screen_name: tweet.user.screen_name}, function(err, data, response){
+            if (!err){
+                console.log('Blocked User: ' + ' https://twitter.com/'+ tweet.user.screen_name)
+                }if (err){
+                 console.log ('Cannot Block User ' + "https://twitter.com/"+ tweet.user.screen_name + ' ' + 'Code '+ err.code +' ' + err.message)
+            }      
+        })
+    }
+});
